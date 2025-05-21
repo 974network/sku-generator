@@ -151,6 +151,8 @@
           <option value="08">Ring US 8</option>
           <option value="085">Ring US 8.5</option>
           <option value="09">Ring US 9</option>
+          <option value="095">Ring US 9.5</option>
+          <option value="10">Ring US 10</option>
         </optgroup>
         <optgroup label="Earring size (diameter/length)">
           <option value="XS">Earrings ≤ 10 mm (XS)</option>
@@ -212,12 +214,48 @@
     const pad2=n=>n.toString().padStart(2,'0');
     const fmt=t=>new Date(t).toLocaleString();
 
-    function generateSKU(){const parts=[];fields.forEach(id=>{let v=(document.getElementById(id).value||'').trim().toUpperCase();if(!v)return;if(id==='serial')v=pad2(v);parts.push(v);});const sku=parts.join('-');document.getElementById('sku').textContent=sku||'—';document.getElementById('copyBtn').disabled=!sku;}
+function generateSKU(){
+  const parts = [];
+  let complete = true;
+  fields.forEach(id=>{
+    const el = document.getElementById(id);
+    let v   = (el.value || '').trim().toUpperCase();
+    if(!v)  complete = false;
+    if(id === 'serial') v = pad2(v);
+    if(v) parts.push(v);
+  });
+
+  document.getElementById('sku').textContent = complete ? parts.join('-') : '—';
+  document.getElementById('copyBtn').disabled = !complete;
+}
 
     document.getElementById('skuForm').addEventListener('change',generateSKU);
     document.getElementById('skuForm').addEventListener('input',generateSKU);
 
-    function copyAndLog(){const sku=document.getElementById('sku').textContent;if(!sku||sku==='—')return;navigator.clipboard.writeText(sku);log.push({sku,ts:Date.now()});localStorage.setItem(STORAGE_KEY,JSON.stringify(log));renderTable();const b=document.getElementById('copyBtn');b.textContent='Copied ✔';setTimeout(()=>b.textContent='Copy & Log SKU',1500);}
+
+function copyAndLog(){
+  // إذا ما زال الزر معطلاً فالحقول ناقصة؛ اخرج بلا تنبيه
+  if (document.getElementById('copyBtn').disabled) return;
+
+  const sku = document.getElementById('sku').textContent;
+
+  // تحقّق من التكرار في السجل
+  if (log.some(entry => entry.sku === sku)){
+    alert('تنبيه: هذا الـSKU مسجَّل مسبقاً.');
+    return; // أوقف الإضافة
+  }
+
+  // النسخ والحفظ كالعادة
+  navigator.clipboard.writeText(sku);
+  log.push({ sku, ts: Date.now() });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(log));
+  renderTable();
+
+  const btn = document.getElementById('copyBtn');
+  btn.textContent = 'Copied ✔';
+  setTimeout(() => btn.textContent = 'Copy & Log SKU', 1500);
+}
+
 
     function renderTable(){const tb=document.querySelector('#logTable tbody');tb.innerHTML='';log.forEach((e,i)=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${i+1}</td><td>${e.sku}</td><td>${fmt(e.ts)}</td>`;tb.appendChild(tr);});document.getElementById('logTable').style.display=log.length?'table':'none';}
 
