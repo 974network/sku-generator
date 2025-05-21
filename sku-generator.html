@@ -1,0 +1,219 @@
+<!-- save as sku-generator.html and open directly in any browser -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>SKU Generator – GORO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body{margin:0;font-family:system-ui,sans-serif;background:#f4f4f4;display:flex;align-items:center;justify-content:center;min-height:100vh}
+    .card{background:#fff;padding:24px 28px;border-radius:18px;box-shadow:0 6px 20px rgba(0,0,0,.08);max-width:600px;width:100%}
+    h1{text-align:center;font-size:24px;margin:0 0 20px}
+    label{display:block;margin:12px 0 4px;font-weight:600}
+    select,input{width:100%;padding:8px 10px;border:1px solid #ccc;border-radius:8px;font-size:14px}
+    #sku{margin-top:20px;background:#f7f7f7;padding:12px;border-radius:8px;text-align:center;font-family:monospace;word-break:break-all}
+    button{margin-top:12px;width:100%;padding:10px;font-size:15px;border:none;border-radius:8px;background:#2e7d32;color:#fff;cursor:pointer}
+    button:disabled{background:#bbb;cursor:not-allowed}
+    table{width:100%;margin-top:24px;border-collapse:collapse;font-size:13px}
+    th,td{border:1px solid #e0e0e0;padding:6px 8px;text-align:left}
+    th{background:#fafafa;font-weight:600}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>SKU Generator</h1>
+    <form id="skuForm" oninput="generateSKU()">
+      <!-- Brand Tier -->
+      <label for="brand">Brand Tier</label>
+      <select id="brand">
+        <option value="">— Select brand tier —</option>
+        <option value="GE">Goro Elite (GE)</option>
+        <option value="GC">Goro Classic (GC)</option>
+      </select>
+
+      <!-- Vendor -->
+      <label for="vendor">Vendor</label>
+      <select id="vendor">
+        <option value="">— Select vendor —</option>
+       <option value="AW">ANDYWEN (AW)</option>
+       <option value="AS">ASNORA (AS)</option>
+       <option value="BA">BAMOER (BA)</option>
+       <option value="BK">BRAVEKISS (BK)</option>
+       <option value="CW">CWWZircons (CW)</option>
+       <option value="GS">Girl 925 Silver (GS)</option>
+       <option value="HB">HIBRIDE (HB)</option>
+       <option value="JK">JaneKelly (JK)</option>
+       <option value="LU">Luoteemi (LU)</option>
+       <option value="MO">MODIAN (MO)</option>
+       <option value="UM">UMODE (UM)</option>
+       <option value="XI">XIYANIKE (XI)</option>
+        <option value="ZA">ZAKOL (ZA)</option>
+      </select>
+
+      <!-- Collection -->
+      <label for="collection">Collection</label>
+      <select id="collection">
+        <option value="">— Select collection —</option>
+        <option value="SP25">Spring 2025 (SP25)</option>
+        <option value="SP24">Spring 2024 (SP24)</option>
+        <option value="ED25">Eid 2025 (ED25)</option>
+        <option value="FW25">Fall/Winter 2025 (FW25)</option>
+      </select>
+
+      <!-- Category -->
+      <label for="category">Category</label>
+      <select id="category">
+        <option value="">— Select category —</option>
+        <option value="R">Ring (R)</option>
+        <option value="N">Necklace (N)</option>
+        <option value="B">Bracelet (B)</option>
+        <option value="E">Earrings (E)</option>
+        <option value="ST">Set (ST)</option>
+             <option value="AC">Accessories (AC)</option>
+      </select>
+
+      <!-- Material -->
+      <label for="material">Material</label>
+      <select id="material">
+        <option value="">— Select material —</option>
+        <option value="S925">Silver 925 (S925)</option>
+        <option value="CU">Copper (CU)</option>
+      </select>
+
+      <!-- Material Color -->
+      <label for="mcolor">Material Color</label>
+      <select id="mcolor">
+        <option value="">— Select material color —</option>
+        <option value="BK">Black finish (BK)</option>
+        <option value="BL">Blue finish (BL)</option>
+        <option value="CG">Champagne gold-tone (CG)</option>
+        <option value="CL">Colored (CL)</option>
+        <option value="GT">Gold tone (GT)</option>
+        <option value="RG">Rose gold tone (RG)</option>
+        <option value="SV">Silver tone (SV)</option>
+      </select>
+
+      <!-- Finish -->
+      <label for="finish"</label>Finish / Plating</label>
+      <select id="finish">
+        <option value="">— None —</option>
+        <option value="RH">Rhodium plated (RH)</option>
+        <option value="SF">Silver-tone finish (SF)</option>
+        <option value="GF">Gold-tone finish (GF)</option>
+        <option value="GP">Gold-tone plated (GP)</option>
+        <option value="RF">Rose gold-tone finish (RF)</option>
+        <option value="RP">Rose gold-tone plated (RP)</option>
+      </select>
+
+      <!-- Stone -->
+      <label for="stone">Stone</label>
+      <select id="stone">
+        <option value="">— None —</option>
+        <option value="ZIR">Zircon (ZIR)</option>
+        <option value="MOI">Moissanite (MOI)</option>
+        <option value="PRL">Pearl (PRL)</option>
+        <option value="CRY">Crystal (CRY)</option>
+      </select>
+
+      <!-- Stone Color -->
+      <label for="scolor">Stone Color</label>
+      <select id="scolor">
+        <option value="">— Select color —</option>
+        <option value="BK">Black (BK)</option>
+        <option value="BL">Blue (BL)</option>
+        <option value="BN">Brown (BN)</option>
+        <option value="GT">Gold tone (GT)</option>
+        <option value="GY">Gray/Grey (GY)</option>
+        <option value="GR">Green (GR)</option>
+        <option value="MC">Multicolored (MC)</option>
+        <option value="PK">Pink (PK)</option>
+        <option value="PU">Purple (PU)</option>
+        <option value="RD">Red (RD)</option>
+        <option value="RG">Rose gold tone (RG)</option>
+        <option value="SV">Silver tone (SV)</option>
+        <option value="WH">White (WH)</option>
+        <option value="YL">Yellow (YL)</option>
+      </select>
+
+      <!-- Size  -->
+      <label for="size">Size / Variant</label>
+      <select id="size">
+        <option value="">— Select size / variant —</option>
+        <optgroup label="Ring size (US)">
+          <option value="04">Ring US 4</option>
+          <option value="045">Ring US 4.5</option>
+          <option value="05">Ring US 5</option>
+          <option value="055">Ring US 5.5</option>
+          <option value="06">Ring US 6</option>
+          <option value="065">Ring US 6.5</option>
+          <option value="07">Ring US 7</option>
+          <option value="075">Ring US 7.5</option>
+          <option value="08">Ring US 8</option>
+          <option value="085">Ring US 8.5</option>
+          <option value="09">Ring US 9</option>
+        </optgroup>
+        <optgroup label="Earring size (diameter/length)">
+          <option value="XS">Earrings ≤ 10 mm (XS)</option>
+          <option value="S">Earrings 11–15 mm (S)</option>
+          <option value="M">Earrings 16–25 mm (M)</option>
+          <option value="L">Earrings 26–40 mm (L)</option>
+          <option value="XL">Earrings &gt; 40 mm (XL)</option>
+        </optgroup>
+        <optgroup label="Bracelet length (cm)">
+          <option value="14">Bracelet 14 cm</option>
+          <option value="16">Bracelet 16 cm</option>
+          <option value="18">Bracelet 18 cm</option>
+          <option value="20">Bracelet 20 cm</option>
+          <option value="22">Bracelet 22 cm</option>
+        </optgroup>
+        <optgroup label="Necklace length (cm)">
+          <option value="S">Necklace 35–42 cm (S)</option>
+          <option value="M">Necklace 43–47 cm (M)</option>
+          <option value="L">Necklace 48–55 cm (L)</option>
+          <option value="XL">Necklace 56–65 cm (XL)</option>
+        </optgroup>
+        <optgroup label="Tiara size (diameter cm)">
+          <option value="S">Tiara ≤ 13 cm (S)</option>
+          <option value="M">Tiara 13.1–14.5 cm (M)</option>
+          <option value="L">Tiara 14.6–16 cm (L)</option>
+          <option value="XL">Tiara &gt; 16 cm (XL)</option>
+        </optgroup>
+        <optgroup label="General">
+          <option value="ADJ">Adjustable (ADJ)</option>
+        </optgroup>
+      </select>
+
+      <!-- Serial -->
+      <label for="serial">Serial</label>
+      <input id="serial" value="00" maxlength="2" pattern="\d{1,2}" />
+    </form>
+
+    <div id="sku">—</div>
+    <button id="copyBtn" onclick="copyAndLog()" disabled>Copy & Log SKU</button>
+
+    <table id="logTable" style="display:none;">
+      <thead><tr><th>#</th><th>SKU</th><th>Time</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    const STORAGE_KEY='sku_log';
+    const fields=['brand','vendor','collection','category','material','mcolor','finish','stone','scolor','size','serial'];
+    let log=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
+    const pad2=n=>n.toString().padStart(2,'0');
+    const fmt=t=>new Date(t).toLocaleString();
+
+    function generateSKU(){const parts=[];fields.forEach(id=>{let v=(document.getElementById(id).value||'').trim().toUpperCase();if(!v)return;if(id==='serial')v=pad2(v);parts.push(v);});const sku=parts.join('-');document.getElementById('sku').textContent=sku||'—';document.getElementById('copyBtn').disabled=!sku;}
+
+    document.getElementById('skuForm').addEventListener('change',generateSKU);
+    document.getElementById('skuForm').addEventListener('input',generateSKU);
+
+    function copyAndLog(){const sku=document.getElementById('sku').textContent;if(!sku||sku==='—')return;navigator.clipboard.writeText(sku);log.push({sku,ts:Date.now()});localStorage.setItem(STORAGE_KEY,JSON.stringify(log));renderTable();const b=document.getElementById('copyBtn');b.textContent='Copied ✔';setTimeout(()=>b.textContent='Copy & Log SKU',1500);}
+
+    function renderTable(){const tb=document.querySelector('#logTable tbody');tb.innerHTML='';log.forEach((e,i)=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${i+1}</td><td>${e.sku}</td><td>${fmt(e.ts)}</td>`;tb.appendChild(tr);});document.getElementById('logTable').style.display=log.length?'table':'none';}
+
+    document.addEventListener('DOMContentLoaded',()=>{generateSKU();renderTable();});
+  </script>
+</body>
+</html>
