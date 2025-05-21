@@ -185,17 +185,20 @@
         </optgroup>
       </select>
 
-     <!-- Serial -->
+<!-- Serial -->
 <label for="serial">Serial</label>
 <input
   id="serial"
-  type="number"
-  min="00"
-  max="99"
-  step="1"
-  value="00"
-  oninput="if(this.value.length>2)this.value=this.value.slice(0,2)"
+  type="text"  
+  value="00"        
+  maxlength="2"
+  pattern="\d{2}"    
+  inputmode="numeric"
+  oninput="
+    this.value = this.value.replace(/\D/g,'').slice(0,2);
+  "
 />
+
     </form>
 
     <div id="sku">—</div>
