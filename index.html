@@ -237,22 +237,28 @@ function generateSKU(){
 
 
 function copyAndLog(){
-  // إذا ما زال الزر معطلاً فالحقول ناقصة؛ اخرج بلا تنبيه
+  // إذا الزر غير فعّال، لا شيء يُنفَّذ
   if (document.getElementById('copyBtn').disabled) return;
 
   const sku = document.getElementById('sku').textContent;
 
-  // تحقّق من التكرار في السجل
+  // تجنّب التكرار
   if (log.some(entry => entry.sku === sku)){
     alert('تنبيه: هذا الـSKU مسجَّل مسبقاً.');
-    return; // أوقف الإضافة
+    return;
   }
 
-  // النسخ والحفظ كالعادة
+  // نسخ إلى الحافظة وتسجيل
   navigator.clipboard.writeText(sku);
   log.push({ sku, ts: Date.now() });
   localStorage.setItem(STORAGE_KEY, JSON.stringify(log));
   renderTable();
+
+  // —— إعادة حقل Serial إلى 00 —— ▼
+  const serialInput = document.getElementById('serial');
+  serialInput.value = '00';
+  generateSKU();  // لتحديث الحقل و تعطيل الزر حتى يختار رقمًا جديدًا
+  // ———————————————————
 
   const btn = document.getElementById('copyBtn');
   btn.textContent = 'Copied ✔';
