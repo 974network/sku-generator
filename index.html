@@ -109,7 +109,7 @@
       <label for="stone">Stone</label>
       <select id="stone">
         <option value="">— None —</option>
-        <option value="NON">No Stone (NON)</option>
+        <option value="000">No Stone (000)</option>
         <option value="ZIR">Zircon (ZIR)</option>
         <option value="MOI">Moissanite (MOI)</option>
         <option value="PRL">Pearl (PRL)</option>
@@ -120,6 +120,7 @@
       <label for="scolor">Stone Color</label>
       <select id="scolor">
         <option value="">— Select color —</option>
+        <option value="00">No Stone (00)</option>
         <option value="BK">Black (BK)</option>
         <option value="BL">Blue (BL)</option>
         <option value="BN">Brown (BN)</option>
@@ -235,6 +236,21 @@ function generateSKU(){
 
     document.getElementById('skuForm').addEventListener('change',generateSKU);
     document.getElementById('skuForm').addEventListener('input',generateSKU);
+
+/* ===== ربط لون الحجر بحالة "No Stone" ===== */
+const stoneSel  = document.getElementById('stone');
+const colorSel  = document.getElementById('scolor');
+
+stoneSel.addEventListener('change', () => {
+  if (stoneSel.value === '000') {       // تم اختيار No Stone
+    colorSel.value    = '00';           // يضبط اللون على 00
+    colorSel.disabled = true;           // ويمنع تغييره
+  } else {
+    if (colorSel.value === '00') colorSel.value = ''; // يفرّغ عند التحويل
+    colorSel.disabled = false;          // يُعيد التمكين
+  }
+  generateSKU();                        // حدِّث المعاينة فوراً
+});
 
 
 function copyAndLog(){
