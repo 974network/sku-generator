@@ -48,7 +48,7 @@
 </main>
 
 <script>
-const METHOD = 13; // Diyanet
+const METHOD = 13;
 const LABELS = {Fajr:"الفجر", Dhuhr:"الظهر", Asr:"العصر", Maghrib:"المغرب", Isha:"العشاء"};
 const ORDER  = ['Fajr','Dhuhr','Asr','Maghrib','Isha'];
 const FALLBACK = { lat:41.016, lng:28.681, name:"إسطنبول • إسنيورت" };
@@ -68,7 +68,7 @@ function fmtHMS(ms){ if(!Number.isFinite(ms) || ms<0) ms=0;
   const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60;
   return `${two(h)}:${two(m)}:${two(ss)}`;
 }
-function fmtHMDate(d){ return `${two(d.getHours())}:${two(d.getMinutes())}`; } // جديد
+function fmtHM12(d){ let h=d.getHours()%12; if(h===0) h=12; return `${h}:${two(d.getMinutes())}`; }
 function ymd(d){ return `${d.getFullYear()}-${two(d.getMonth()+1)}-${two(d.getDate())}`; }
 
 function toDateToday(timeStr, baseDate){
@@ -115,9 +115,8 @@ function computeNext(now){
 
 function tick(){
   const now=new Date();
-  // لكل بطاقة: قبل وقتها يعرض عدّاد. بعد وقتها يعرض وقت الأذان.
   slots.forEach(s=>{
-    s.node.textContent = (now < s.date) ? fmtHMS(s.date - now) : fmtHMDate(s.date);
+    s.node.textContent = (now < s.date) ? fmtHMS(s.date - now) : fmtHM12(s.date);
   });
   if(nextIdx>=0){
     const diff = slots[nextIdx].date - now;
