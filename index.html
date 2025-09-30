@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>عدّاد الصلاة — الموقع الحالي</title>
+<title>Prayer Timer — Current Location</title>
 <style>
   :root{--bg:transparent;--card:transparent;--ink:#0e2136;--muted:#6c7b90;--radius:22px}
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Kufi Arabic","Noto Sans Arabic",Tahoma,Arial;color:var(--ink);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+  body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Tahoma,Arial;color:var(--ink);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
   .wrap{max-width:1100px;width:100%;display:grid;gap:28px}
   .card{background:var(--card);border-radius:var(--radius);padding:28px clamp(22px,4vw,40px)}
   .hero{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
@@ -29,10 +29,10 @@
 <main class="wrap">
   <section class="card hero">
     <div>
-      <div class="subtitle">الصلاة التالية</div>
+      <div class="subtitle">Next Prayer</div>
       <div id="nextName" class="next-name">—</div>
-      <span id="locLabel" class="badge">جارٍ تحديد الموقع…</span>
-      <button id="useMyLoc" class="btn" title="إعادة المحاولة لالتقاط موقعك">استخدام موقعي الآن</button>
+      <span id="locLabel" class="badge">Detecting location…</span>
+      <button id="useMyLoc" class="btn" title="Retry to capture your location">Use My Location</button>
     </div>
     <div>
       <div id="mainCountdown" class="countdown-big">--:--:--</div>
@@ -41,17 +41,17 @@
   </section>
 
   <section class="card">
-    <div class="subtitle" style="font-size:18px;margin-bottom:12px">أوقات اليوم — العدّاد لكل صلاة</div>
+    <div class="subtitle" style="font-size:18px;margin-bottom:12px">Today’s Times — Countdown for Each Prayer</div>
     <div id="grid" class="grid"></div>
-    <div class="note">يتم التحديث تلقائيًا كل منتصف الليل.</div>
+    <div class="note">Automatically updates every midnight.</div>
   </section>
 </main>
 
 <script>
 const METHOD = 13;
-const LABELS = {Fajr:"الفجر", Dhuhr:"الظهر", Asr:"العصر", Maghrib:"المغرب", Isha:"العشاء"};
+const LABELS = {Fajr:"Fajr", Dhuhr:"Dhuhr", Asr:"Asr", Maghrib:"Maghrib", Isha:"Isha"};
 const ORDER  = ['Fajr','Dhuhr','Asr','Maghrib','Isha'];
-const FALLBACK = { lat:41.016, lng:28.681, name:"إسطنبول • إسنيورت" };
+const FALLBACK = { lat:41.016, lng:28.681, name:"Istanbul • Esenyurt" };
 
 const elMeta=document.getElementById('meta');
 const elGrid=document.getElementById('grid');
@@ -136,7 +136,7 @@ function getBrowserLocation(){
   return new Promise(res=>{
     if(!navigator.geolocation || !canAskGeo()){ res(FALLBACK); return; }
     navigator.geolocation.getCurrentPosition(
-      pos=>res({lat:pos.coords.latitude, lng:pos.coords.longitude, name:"موقعي الحالي"}),
+      pos=>res({lat:pos.coords.latitude, lng:pos.coords.longitude, name:"My Current Location"}),
       ()=>res(FALLBACK),
       {enableHighAccuracy:true,timeout:8000}
     );
@@ -144,7 +144,7 @@ function getBrowserLocation(){
 }
 
 btnUse.addEventListener('click', async ()=>{
-  elLoc.textContent='جارٍ تحديد الموقع…';
+  elLoc.textContent='Detecting location…';
   const p = await getBrowserLocation();
   LAT=p.lat; LNG=p.lng; elLoc.textContent=p.name;
   await init(true);
@@ -152,7 +152,7 @@ btnUse.addEventListener('click', async ()=>{
 
 async function init(force=false){
   try{
-    elMeta.textContent = 'جاري جلب أوقات الصلاة…';
+    elMeta.textContent = 'Fetching prayer times…';
     if(!force){ const p = await getBrowserLocation(); LAT=p.lat; LNG=p.lng; elLoc.textContent=p.name; }
     const now = new Date();
     today = await getTimings(LAT, LNG, now);
@@ -161,11 +161,11 @@ async function init(force=false){
 
     buildGrid(); computeNext(now);
 
-    const tz = Intl.DateTimeFormat('ar', {timeZoneName:'short'}).format(now).split(' ').pop();
-    elMeta.textContent = `المنطقة الزمنية: ${tz} • طريقة: Diyanet`;
+    const tz = Intl.DateTimeFormat('en', {timeZoneName:'short'}).format(now).split(' ').pop();
+    elMeta.textContent = `Timezone: ${tz} • Method: Diyanet`;
   }catch(e){
     console.error(e);
-    elMeta.textContent = 'تعذّر جلب الأوقات. حاول التحديث.';
+    elMeta.textContent = 'Failed to fetch times. Please refresh.';
   }
 }
 
