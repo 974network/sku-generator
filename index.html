@@ -1,298 +1,209 @@
-<!-- save as sku-generator.html and open directly in any browser -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <title>SKU Generator – GORO</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    body{margin:0;font-family:system-ui,sans-serif;background:#f4f4f4;display:flex;align-items:center;justify-content:center;min-height:100vh}
-    .card{background:#fff;padding:24px 28px;border-radius:18px;box-shadow:0 6px 20px rgba(0,0,0,.08);max-width:600px;width:100%}
-    h1{text-align:center;font-size:24px;margin:0 0 20px}
-    label{display:block;margin:12px 0 4px;font-weight:600}
-    select,input{width:100%;padding:8px 10px;border:1px solid #ccc;border-radius:8px;font-size:14px}
-    #sku{margin-top:20px;background:#f7f7f7;padding:12px;border-radius:8px;text-align:center;font-family:monospace;word-break:break-all}
-    button{margin-top:12px;width:100%;padding:10px;font-size:15px;border:none;border-radius:8px;background:#2e7d32;color:#fff;cursor:pointer}
-    button:disabled{background:#bbb;cursor:not-allowed}
-    table{width:100%;margin-top:24px;border-collapse:collapse;font-size:13px}
-    th,td{border:1px solid #e0e0e0;padding:6px 8px;text-align:left}
-    th{background:#fafafa;font-weight:600}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>عدّاد الصلاة — الموقع الحالي</title>
+<style>
+  :root{--bg:#fff;--card:#fff;--ink:#0e2136;--muted:#6c7b90;--radius:22px}
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--bg);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Kufi Arabic","Noto Sans Arabic",Tahoma,Arial;
+    color:var(--ink);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px
+  }
+  .wrap{max-width:1100px;width:100%;display:grid;gap:28px}
+  .card{
+    background:var(--card);border-radius:var(--radius);
+    padding:28px clamp(22px,4vw,40px);
+    box-shadow:0 30px 50px rgba(14,33,54,.12),0 6px 14px rgba(14,33,54,.08);
+    border:1px solid rgba(14,33,54,.05)
+  }
+  .hero{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+  .subtitle{color:var(--muted);font-weight:700;letter-spacing:.3px}
+  .next-name{font-size:clamp(24px,2.3vw,30px);font-weight:800}
+  .countdown-big{
+    font-variant-numeric:tabular-nums;font-weight:900;line-height:1;
+    font-size:clamp(44px,9vw,84px);text-shadow:0 6px 18px rgba(14,33,54,.18)
+  }
+  .meta{color:var(--muted);font-size:12px;text-align:center;margin-top:8px}
+  .badge{
+    display:inline-block;border:1px solid rgba(14,33,54,.14);
+    border-radius:999px;padding:6px 10px;color:var(--muted);font-size:12px
+  }
+  .btn{
+    border:1px solid rgba(14,33,54,.14);border-radius:999px;padding:6px 12px;background:#fff;cursor:pointer;
+    font-size:12px;margin-inline-start:8px
+  }
+  .grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .slot{
+    background:#fff;border:1px solid rgba(14,33,54,.08);border-radius:16px;padding:16px 18px;
+    display:grid;gap:8px;box-shadow:0 10px 20px rgba(14,33,54,.06)
+  }
+  .slot .name{font-weight:800;font-size:18px}
+  .slot .cd{font-variant-numeric:tabular-nums;font-weight:800;font-size:28px;line-height:1.1}
+  .is-next{outline:2px solid rgba(14,33,54,.12)}
+  .note{color:var(--muted);font-size:12px;text-align:center}
+</style>
 </head>
 <body>
-  <div class="card">
-    <h1>SKU Generator</h1>
-    <form id="skuForm" oninput="generateSKU()">
-      <!-- Brand Tier -->
-      <label for="brand">Brand Tier</label>
-      <select id="brand">
-        <option value="">— Select brand tier —</option>
-        <option value="GE">Goro Elite (GE)</option>
-        <option value="GC">Goro Classic (GC)</option>
-      </select>
+<main class="wrap">
+  <!-- البطاقة الرئيسية -->
+  <section class="card hero">
+    <div>
+      <div class="subtitle">الصلاة التالية</div>
+      <div id="nextName" class="next-name">—</div>
+      <span id="locLabel" class="badge">جارٍ تحديد الموقع…</span>
+      <button id="useMyLoc" class="btn" title="إعادة المحاولة لالتقاط موقعك">استخدام موقعي الآن</button>
+    </div>
+    <div>
+      <div id="mainCountdown" class="countdown-big">--:--:--</div>
+      <div id="meta" class="meta">—</div>
+    </div>
+  </section>
 
-      <!-- Vendor -->
-      <label for="vendor">Vendor</label>
-      <select id="vendor">
-        <option value="">— Select vendor —</option>
-       <option value="AW">ANDYWEN (AW)</option>
-       <option value="AS">ASNORA (AS)</option>
-       <option value="BA">BAMOER (BA)</option>
-       <option value="BK">BRAVEKISS (BK)</option>
-       <option value="CW">CWWZircons (CW)</option>
-       <option value="GS">Girl 925 Silver (GS)</option>
-       <option value="HB">HIBRIDE (HB)</option>
-       <option value="JK">JaneKelly (JK)</option>
-       <option value="LU">Luoteemi (LU)</option>
-       <option value="MO">MODIAN (MO)</option>
-       <option value="UM">UMODE (UM)</option>
-       <option value="XI">XIYANIKE (XI)</option>
-        <option value="ZA">ZAKOL (ZA)</option>
-      </select>
+  <!-- بطاقات جميع الصلوات -->
+  <section class="card">
+    <div class="subtitle" style="font-size:18px;margin-bottom:12px">أوقات اليوم — العدّاد لكل صلاة</div>
+    <div id="grid" class="grid"></div>
+    <div class="note">يتم التحديث تلقائيًا كل منتصف الليل.</div>
+  </section>
+</main>
 
-      <!-- Collection -->
-      <label for="collection">Collection</label>
-      <select id="collection">
-        <option value="">— Select collection —</option>
-        <option value="SP25">Spring 2025 (SP25)</option>
-        <option value="SP24">Spring 2024 (SP24)</option>
-        <option value="ED25">Eid 2025 (ED25)</option>
-        <option value="FW25">Fall/Winter 2025 (FW25)</option>
-      </select>
+<script>
+/* ===== الإعدادات ===== */
+const METHOD = 13; // Diyanet
+const LABELS = {Fajr:"الفجر", Dhuhr:"الظهر", Asr:"العصر", Maghrib:"المغرب", Isha:"العشاء"};
+const ORDER  = ['Fajr','Dhuhr','Asr','Maghrib','Isha'];
+const FALLBACK = { lat:41.016, lng:28.681, name:"إسطنبول • إسنيورت" };
 
-      <!-- Category -->
-      <label for="category">Category</label>
-      <select id="category">
-        <option value="">— Select category —</option>
-        <option value="R">Ring (R)</option>
-        <option value="N">Necklace (N)</option>
-        <option value="B">Bracelet (B)</option>
-        <option value="E">Earrings (E)</option>
-        <option value="ST">Set (ST)</option>
-             <option value="AC">Accessories (AC)</option>
-      </select>
+/* عناصر DOM */
+const elMeta=document.getElementById('meta');
+const elGrid=document.getElementById('grid');
+const elNextName=document.getElementById('nextName');
+const elMainCD=document.getElementById('mainCountdown');
+const elLoc=document.getElementById('locLabel');
+const btnUse=document.getElementById('useMyLoc');
 
-      <!-- Material -->
-      <label for="material">Material</label>
-      <select id="material">
-        <option value="">— Select material —</option>
-        <option value="S925">Silver 925 (S925)</option>
-        <option value="CU">Copper (CU)</option>
-      </select>
+/* حالة التطبيق */
+let LAT=FALLBACK.lat, LNG=FALLBACK.lng;
+let today={}, tomorrow={}, slots=[], nextIdx=-1;
 
-      <!-- Material Color -->
-      <label for="mcolor">Material Color</label>
-      <select id="mcolor">
-        <option value="">— Select material color —</option>
-        <option value="BK">Black finish (BK)</option>
-        <option value="BL">Blue finish (BL)</option>
-        <option value="CG">Champagne gold-tone (CG)</option>
-        <option value="CL">Colored (CL)</option>
-        <option value="GT">Gold tone (GT)</option>
-        <option value="RG">Rose gold tone (RG)</option>
-        <option value="SV">Silver tone (SV)</option>
-      </select>
+/* أدوات تنسيق */
+const two=n=>String(n).padStart(2,'0');
+function fmtHMS(ms){ if(!Number.isFinite(ms) || ms<0) ms=0;
+  const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60;
+  return `${two(h)}:${two(m)}:${two(ss)}`;
+}
+function ymd(d){ return `${d.getFullYear()}-${two(d.getMonth()+1)}-${two(d.getDate())}`; }
 
-      <!-- Finish -->
-      <label for="finish"</label>Finish / Plating</label>
-      <select id="finish">
-        <option value="">— None —</option>
-        <option value="RH">Rhodium plated (RH)</option>
-        <option value="PL">Platinum plated (PL)</option>
-        <option value="SF">Silver-tone finish (SF)</option>
-        <option value="GF">Gold-tone finish (GF)</option>
-        <option value="GP">Gold-tone plated (GP)</option>
-        <option value="RF">Rose gold-tone finish (RF)</option>
-        <option value="RP">Rose gold-tone plated (RP)</option>
-        <option value="MF">Mixed metal finish (MF)</option>
-      </select>
-
-      <!-- Stone -->
-      <label for="stone">Stone</label>
-      <select id="stone">
-        <option value="">— None —</option>
-        <option value="000">No Stone (000)</option>
-        <option value="ZIR">Zircon (ZIR)</option>
-        <option value="MOI">Moissanite (MOI)</option>
-        <option value="PRL">Pearl (PRL)</option>
-        <option value="CRY">Crystal (CRY)</option>
-      </select>
-
-      <!-- Stone Color -->
-      <label for="scolor">Stone Color</label>
-      <select id="scolor">
-        <option value="">— Select color —</option>
-        <option value="00">No Stone (00)</option>
-        <option value="BK">Black (BK)</option>
-        <option value="BL">Blue (BL)</option>
-        <option value="BN">Brown (BN)</option>
-        <option value="GT">Gold tone (GT)</option>
-        <option value="GY">Gray/Grey (GY)</option>
-        <option value="GR">Green (GR)</option>
-        <option value="MC">Multicolored (MC)</option>
-        <option value="PK">Pink (PK)</option>
-        <option value="PU">Purple (PU)</option>
-        <option value="RD">Red (RD)</option>
-        <option value="RG">Rose gold tone (RG)</option>
-        <option value="SV">Silver tone (SV)</option>
-        <option value="WH">White (WH)</option>
-        <option value="YL">Yellow (YL)</option>
-      </select>
-
-      <!-- Size  -->
-      <label for="size">Size / Variant</label>
-      <select id="size">
-        <option value="">— Select size / variant —</option>
-        <optgroup label="Ring size (US)">
-          <option value="04">Ring US 4</option>
-          <option value="045">Ring US 4.5</option>
-          <option value="05">Ring US 5</option>
-          <option value="055">Ring US 5.5</option>
-          <option value="06">Ring US 6</option>
-          <option value="065">Ring US 6.5</option>
-          <option value="07">Ring US 7</option>
-          <option value="075">Ring US 7.5</option>
-          <option value="08">Ring US 8</option>
-          <option value="085">Ring US 8.5</option>
-          <option value="09">Ring US 9</option>
-          <option value="095">Ring US 9.5</option>
-          <option value="10">Ring US 10</option>
-        </optgroup>
-        <optgroup label="Earring size (diameter/length)">
-          <option value="XS">Earrings ≤ 10 mm (XS)</option>
-          <option value="S">Earrings 11–15 mm (S)</option>
-          <option value="M">Earrings 16–25 mm (M)</option>
-          <option value="L">Earrings 26–40 mm (L)</option>
-          <option value="XL">Earrings &gt; 40 mm (XL)</option>
-        </optgroup>
-        <optgroup label="Bracelet length (cm)">
-          <option value="14">Bracelet 14 cm</option>
-          <option value="16">Bracelet 16 cm</option>
-          <option value="17">Bracelet 17 cm</option>
-          <option value="18">Bracelet 18 cm</option>
-          <option value="185">Bracelet 18.5 cm</option>
-          <option value="19">Bracelet 19 cm</option>
-          <option value="20">Bracelet 20 cm</option>
-          <option value="21">Bracelet 21 cm</option>
-          <option value="22">Bracelet 22 cm</option>
-          <option value="23">Bracelet 23 cm</option>
-        </optgroup>
-        <optgroup label="Necklace length (cm)">
-          <option value="S">Necklace 35–42 cm (S)</option>
-          <option value="M">Necklace 43–47 cm (M)</option>
-          <option value="L">Necklace 48–55 cm (L)</option>
-          <option value="XL">Necklace 56–65 cm (XL)</option>
-        </optgroup>
-        <optgroup label="Tiara size (diameter cm)">
-          <option value="S">Tiara ≤ 13 cm (S)</option>
-          <option value="M">Tiara 13.1–14.5 cm (M)</option>
-          <option value="L">Tiara 14.6–16 cm (L)</option>
-          <option value="XL">Tiara &gt; 16 cm (XL)</option>
-        </optgroup>
-        <optgroup label="General">
-          <option value="ADJ">Adjustable (ADJ)</option>
-        </optgroup>
-      </select>
-
-<!-- Serial -->
-<label for="serial">Serial</label>
-<input
-  id="serial"
-  type="text"  
-  value="00"        
-  maxlength="2"
-  pattern="\d{2}"    
-  inputmode="numeric"
-  oninput="
-    this.value = this.value.replace(/\D/g,'').slice(0,2);
-  "
-/>
-
-    </form>
-
-    <div id="sku">—</div>
-    <button id="copyBtn" onclick="copyAndLog()" disabled>Copy & Log SKU</button>
-
-    <table id="logTable" style="display:none;">
-      <thead><tr><th>#</th><th>SKU</th><th>Time</th></tr></thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <script>
-    const STORAGE_KEY='sku_log';
-    const fields=['brand','vendor','collection','category','material','mcolor','finish','stone','scolor','size','serial'];
-    let log=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
-    const pad2=n=>n.toString().padStart(2,'0');
-    const fmt=t=>new Date(t).toLocaleString();
-
-function generateSKU(){
-  const parts = [];
-  let complete = true;
-  fields.forEach(id=>{
-    const el = document.getElementById(id);
-    let v   = (el.value || '').trim().toUpperCase();
-    if(!v)  complete = false;
-    if(id === 'serial') v = pad2(v);
-    if(v) parts.push(v);
-  });
-
-  document.getElementById('sku').textContent = complete ? parts.join('-') : '—';
-  document.getElementById('copyBtn').disabled = !complete;
+/* تحويل "HH:MM (…)" إلى Date في اليوم المطلوب */
+function toDateToday(timeStr, baseDate){
+  const hm = timeStr.split(' ')[0]; // ناخذ HH:MM فقط
+  const [H,M] = hm.split(':').map(Number);
+  const d = new Date(baseDate);
+  d.setHours(H, M, 0, 0);
+  return d;
 }
 
-    document.getElementById('skuForm').addEventListener('change',generateSKU);
-    document.getElementById('skuForm').addEventListener('input',generateSKU);
+/* جلب أوقات صلاة ليوم محدّد عبر lat/lng */
+async function getTimings(lat, lng, dateObj){
+  const url=`https://api.aladhan.com/v1/timings/${ymd(dateObj)}?latitude=${lat}&longitude=${lng}&method=${METHOD}`;
+  const r=await fetch(url,{cache:'no-store'});
+  const j=await r.json();
+  if(j.code!==200) throw new Error('API error');
+  const t=j.data.timings;
+  return {
+    Fajr:    toDateToday(t.Fajr,    dateObj),
+    Dhuhr:   toDateToday(t.Dhuhr,   dateObj),
+    Asr:     toDateToday(t.Asr,     dateObj),
+    Maghrib: toDateToday(t.Maghrib, dateObj),
+    Isha:    toDateToday(t.Isha,    dateObj),
+  };
+}
 
-/* ===== ربط لون الحجر بحالة "No Stone" ===== */
-const stoneSel  = document.getElementById('stone');
-const colorSel  = document.getElementById('scolor');
+/* بناء بطاقات الصلوات */
+function buildGrid(){
+  elGrid.innerHTML=''; slots=[];
+  ORDER.forEach(key=>{
+    const item=document.createElement('div');
+    item.className='slot';
+    item.innerHTML=`<div class="name">${LABELS[key]}</div><div class="cd">--:--:--</div>`;
+    elGrid.appendChild(item);
+    slots.push({key, date:today[key], node:item.querySelector('.cd'), root:item});
+  });
+}
 
-stoneSel.addEventListener('change', () => {
-  if (stoneSel.value === '000') {       // تم اختيار No Stone
-    colorSel.value    = '00';           // يضبط اللون على 00
-    colorSel.disabled = true;           // ويمنع تغييره
-  } else {
-    if (colorSel.value === '00') colorSel.value = ''; // يفرّغ عند التحويل
-    colorSel.disabled = false;          // يُعيد التمكين
+/* تحديد الصلاة التالية (يعالج ما بعد العشاء بفجر الغد) */
+function computeNext(now){
+  ORDER.forEach(k=>{ const s=slots.find(x=>x.key===k); s.date=today[k]; });
+  nextIdx = slots.findIndex(s=>s.date > now);
+  if(nextIdx === -1){ nextIdx = 0; slots[0].date = tomorrow.Fajr; }
+  slots.forEach((s,i)=> s.root.classList.toggle('is-next', i===nextIdx));
+  elNextName.textContent = LABELS[slots[nextIdx].key];
+}
+
+/* حلقة العدّاد */
+function tick(){
+  const now=new Date();
+  slots.forEach(s=> s.node.textContent = fmtHMS(s.date - now));
+  if(nextIdx>=0){
+    const diff = slots[nextIdx].date - now;
+    elMainCD.textContent = fmtHMS(diff);
+    if(diff<=0) computeNext(now);
   }
-  generateSKU();                        // حدِّث المعاينة فوراً
+  setTimeout(tick, 1000);
+}
+
+/* تحديث عند منتصف الليل */
+function scheduleMidnight(){
+  const now=new Date(); const midnight=new Date(now); midnight.setHours(24,0,0,0);
+  setTimeout(async ()=>{ await init(true); scheduleMidnight(); }, midnight - now + 1000);
+}
+
+/* تحديد الموقع (يطلب الإذن على HTTPS/localhost) */
+function canAskGeo(){ return location.protocol==='https:' || location.hostname==='localhost'; }
+function getBrowserLocation(){
+  return new Promise(res=>{
+    if(!navigator.geolocation || !canAskGeo()){ res(FALLBACK); return; }
+    navigator.geolocation.getCurrentPosition(
+      pos=>res({lat:pos.coords.latitude, lng:pos.coords.longitude, name:"موقعي الحالي"}),
+      ()=>res(FALLBACK),
+      {enableHighAccuracy:true,timeout:8000}
+    );
+  });
+}
+
+/* زر إعادة المحاولة يدويًا */
+btnUse.addEventListener('click', async ()=>{
+  elLoc.textContent='جارٍ تحديد الموقع…';
+  const p = await getBrowserLocation();
+  LAT=p.lat; LNG=p.lng; elLoc.textContent=p.name;
+  await init(true); // إعادة تحميل الأوقات بالموقع الجديد
 });
 
+/* تهيئة */
+async function init(force=false){
+  try{
+    elMeta.textContent = 'جاري جلب أوقات الصلاة…';
+    if(!force){ const p = await getBrowserLocation(); LAT=p.lat; LNG=p.lng; elLoc.textContent=p.name; }
+    const now = new Date();
+    today = await getTimings(LAT, LNG, now);
+    const tmr = new Date(now); tmr.setDate(now.getDate()+1);
+    tomorrow = await getTimings(LAT, LNG, tmr);
 
-function copyAndLog(){
-  // إذا الزر غير فعّال، لا شيء يُنفَّذ
-  if (document.getElementById('copyBtn').disabled) return;
+    buildGrid(); computeNext(now);
 
-  const sku = document.getElementById('sku').textContent;
-
-  // تجنّب التكرار
-  if (log.some(entry => entry.sku === sku)){
-    alert('تنبيه: هذا الـSKU مسجَّل مسبقاً.');
-    return;
+    const tz = Intl.DateTimeFormat('ar', {timeZoneName:'short'}).format(now).split(' ').pop();
+    elMeta.textContent = `المنطقة الزمنية: ${tz} • طريقة: Diyanet`;
+  }catch(e){
+    console.error(e);
+    elMeta.textContent = 'تعذّر جلب الأوقات. حاول التحديث.';
   }
-
-  // نسخ إلى الحافظة وتسجيل
-  navigator.clipboard.writeText(sku);
-  log.push({ sku, ts: Date.now() });
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(log));
-  renderTable();
-
-  // —— إعادة حقل Serial إلى 00 —— ▼
-  const serialInput = document.getElementById('serial');
-  serialInput.value = '00';
-  generateSKU();  // لتحديث الحقل و تعطيل الزر حتى يختار رقمًا جديدًا
-  // ———————————————————
-
-  const btn = document.getElementById('copyBtn');
-  btn.textContent = 'Copied ✔';
-  setTimeout(() => btn.textContent = 'Copy & Log SKU', 1500);
 }
 
-
-    function renderTable(){const tb=document.querySelector('#logTable tbody');tb.innerHTML='';log.forEach((e,i)=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${i+1}</td><td>${e.sku}</td><td>${fmt(e.ts)}</td>`;tb.appendChild(tr);});document.getElementById('logTable').style.display=log.length?'table':'none';}
-
-    document.addEventListener('DOMContentLoaded',()=>{generateSKU();renderTable();});
-  </script>
+/* ابدأ */
+init().then(()=>{ tick(); scheduleMidnight(); });
+</script>
 </body>
 </html>
