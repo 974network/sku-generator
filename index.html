@@ -23,6 +23,12 @@
   .slot .cd{font-variant-numeric:tabular-nums;font-weight:800;font-size:28px;line-height:1.1}
   .is-next{outline:2px solid rgba(14,33,54,.12)}
   .note{color:var(--muted);font-size:12px;text-align:center}
+
+  /* mini calendar */
+  .calendar{width:130px;border:1px solid rgba(14,33,54,.14);border-radius:16px;overflow:hidden;background:#fff}
+  .cal-head{background:#ff5630;color:#fff;font-weight:900;text-align:center;padding:6px 0;font-size:12px;letter-spacing:.3px}
+  .cal-num{font:900 48px/1 system-ui;text-align:center;color:#0e2136;padding:12px 0}
+  .cal-foot{color:var(--muted);text-align:center;font-size:12px;padding:8px 6px 12px}
 </style>
 </head>
 <body>
@@ -34,10 +40,14 @@
       <span id="locLabel" class="badge">Detecting location…</span>
       <button id="useMyLoc" class="btn" title="Retry to capture your location">Use My Location</button>
     </div>
+
     <div>
       <div id="mainCountdown" class="countdown-big">--:--:--</div>
       <div id="meta" class="meta">—</div>
     </div>
+
+    <!-- Today mini calendar -->
+    <div id="todayBox" class="calendar" aria-label="Today"></div>
   </section>
 
   <section class="card">
@@ -59,6 +69,7 @@ const elNextName=document.getElementById('nextName');
 const elMainCD=document.getElementById('mainCountdown');
 const elLoc=document.getElementById('locLabel');
 const btnUse=document.getElementById('useMyLoc');
+const elTodayBox=document.getElementById('todayBox');
 
 let LAT=FALLBACK.lat, LNG=FALLBACK.lng;
 let today={}, tomorrow={}, slots=[], nextIdx=-1;
@@ -77,6 +88,18 @@ function toDateToday(timeStr, baseDate){
   const d = new Date(baseDate);
   d.setHours(H, M, 0, 0);
   return d;
+}
+
+/* render today mini-calendar */
+function renderTodayCalendar(d=new Date()){
+  const day   = d.toLocaleDateString('en-US',{weekday:'long'});  // e.g., Wednesday
+  const month = d.toLocaleDateString('en-US',{month:'short'});   // e.g., Oct
+  const date  = d.getDate();
+  const year  = d.getFullYear();
+  elTodayBox.innerHTML =
+    `<div class="cal-head">Today</div>
+     <div class="cal-num">${date}</div>
+     <div class="cal-foot">${day}, ${month} ${date}, ${year}</div>`;
 }
 
 async function getTimings(lat, lng, dateObj){
@@ -99,12 +122,10 @@ function buildGrid(){
   ORDER.forEach(key=>{
     const item=document.createElement('div');
     item.className='slot';
-    // ثابت: نعرض وقت الأذان فقط
     item.innerHTML=`<div class="name">${LABELS[key]}</div><div class="cd" data-key="${key}">--:--</div>`;
     elGrid.appendChild(item);
     slots.push({key, date:today[key], node:item.querySelector('.cd'), root:item});
   });
-  // تعبئة الأوقات بصيغة 12 ساعة
   slots.forEach(s=>{ s.node.textContent = fmtHM12(s.date); });
 }
 
@@ -121,14 +142,18 @@ function tick(){
   if(nextIdx>=0){
     const diff = slots[nextIdx].date - now;
     elMainCD.textContent = fmtHMS(diff > 0 ? diff : 0);
-    if(diff<=0) computeNext(now); // عند الانتقال للصلاة التالية
+    if(diff<=0) computeNext(now);
   }
   setTimeout(tick, 1000);
 }
 
 function scheduleMidnight(){
   const now=new Date(); const midnight=new Date(now); midnight.setHours(24,0,0,0);
-  setTimeout(async ()=>{ await init(true); scheduleMidnight(); }, midnight - now + 1000);
+  setTimeout(async ()=>{
+    await init(true);
+    renderTodayCalendar(new Date());
+    scheduleMidnight();
+  }, midnight - now + 1000);
 }
 
 function canAskGeo(){ return location.protocol==='https:' || location.hostname==='localhost'; }
@@ -148,6 +173,7 @@ btnUse.addEventListener('click', async ()=>{
   const p = await getBrowserLocation();
   LAT=p.lat; LNG=p.lng; elLoc.textContent=p.name;
   await init(true);
+  renderTodayCalendar(new Date());
 });
 
 async function init(force=false){
@@ -155,12 +181,11 @@ async function init(force=false){
     elMeta.textContent = 'Fetching prayer times…';
     if(!force){ const p = await getBrowserLocation(); LAT=p.lat; LNG=p.lng; elLoc.textContent=p.name; }
     const now = new Date();
+    renderTodayCalendar(now);
     today = await getTimings(LAT, LNG, now);
     const tmr = new Date(now); tmr.setDate(now.getDate()+1);
     tomorrow = await getTimings(LAT, LNG, tmr);
-
     buildGrid(); computeNext(now);
-
     const tz = Intl.DateTimeFormat('en', {timeZoneName:'short'}).format(now).split(' ').pop();
     elMeta.textContent = `Timezone: ${tz} • Method: Diyanet`;
   }catch(e){
